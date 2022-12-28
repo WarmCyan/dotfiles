@@ -1,0 +1,54 @@
+#!/bin/bash
+
+# ===============================================================
+# sri-hash
+# Quickly get the sri hash from the passed .tar.gz archive link for the source code release from a github repo
+# ===============================================================
+
+set -o errexit
+set -o nounset
+set -o pipefail
+
+
+function parse_params() {
+  positional_args=()
+  local param
+  while [[ $# -gt 0 ]]; do
+    param="$1"
+    shift
+    case $param in
+      -h | --help)
+        help=true
+        ;;
+
+      *)
+        positional_args+=("$param")
+        ;;
+    esac
+  done
+}
+
+function print_help() {
+  echo "Quickly get the sri hash from the passed .tar.gz archive link for the source code release from a github repo"
+  echo -e "\nusage: sri-hash [ARCHIVE_URL]"
+  echo ""
+  echo -e "  -h --help\t\tDisplay this help message."
+}
+
+parse_params "$@"
+set -- "${positional_args[@]}"
+
+if [[ ${help-false} == true ]]; then
+  print_help
+  exit 0
+fi
+
+# ---------------------- MAIN SCRIPT CODE -----------------------
+
+if [[ $# -lt 1 ]]; then
+  echo "Please provide the url to an archive/.tar.gz file of the source."
+  exit 1
+fi
+
+sha256=$(nix-prefetch-url --unpack "$1")
+nix hash to-sri "sha256:$sha256"

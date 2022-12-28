@@ -1,0 +1,21 @@
+#!/bin/bash
+set -o errexit
+set -o nounset
+set -o pipefail
+
+
+micromamba install \
+  jupyter \
+  jupyterlab \
+  nodejs \
+  jupyterlab_vim \
+  ipydrawio \
+  dask_labextension \
+  jupyterlab-lsp \
+  python-lsp-server \
+  jupyterlab_code_formatter \
+  black \
+  isort
+  
+pip install jupyterlab-vimrc
+
