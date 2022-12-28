@@ -9,5 +9,5 @@ mkdir -p ~/.config/nvim
 cp home/.config/nvim/init.vim ~/.config/nvim
 mkdir -p ~/bin
 echo "export PATH=\"$HOME/bin:\$PATH\"" >> ~/.bashrc
-cp -r bin/ "$HOME/bin"
+cp bin/* "$HOME/bin"
 set +o xtrace

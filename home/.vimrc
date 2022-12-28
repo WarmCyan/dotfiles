@@ -24,7 +24,6 @@ endif
 " colorscheme! 
 set background=dark
 let g:everforest_background='hard'
-colorscheme everforest
 
 " ==============================================================================
 " SETTINGS
