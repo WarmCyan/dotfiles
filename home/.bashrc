@@ -49,16 +49,16 @@ alias v='nvim'
 
 
 # >>> mamba initialize >>>
-export MAMBA_EXE='micromamba';
-export MAMBA_ROOT_PREFIX='/home/dwl/micromamba';
-__mamba_setup="$('micromamba' shell hook --shell bash --prefix '/home/dwl/micromamba' 2> /dev/null)"
+export MAMBA_EXE=$HOME/.local/bin/micromamba
+export MAMBA_ROOT_PREFIX=$HOME/micromamba
+__mamba_setup="$($MAMBA_EXE shell hook --shell bash --prefix $MAMBA_ROOT_PREFIX 2> /dev/null)"
 if [ $? -eq 0 ]; then 
     eval "$__mamba_setup"
 else
-    if [ -f "/home/dwl/micromamba/etc/profile.d/micromamba.sh" ]; then
-        . "/home/dwl/micromamba/etc/profile.d/micromamba.sh"
+    if [ -f "$MAMBA_ROOT_PREFIX/etc/profile.d/micromamba.sh" ]; then
+        . "$MAMBA_ROOT_PREFIX/etc/profile.d/micromamba.sh"
     else
-        export  PATH="/home/dwl/micromamba/bin:$PATH"
+        export  PATH="$MAMBA_ROOT_PREFIX/bin:$PATH"
     fi
 fi
 unset __mamba_setup
