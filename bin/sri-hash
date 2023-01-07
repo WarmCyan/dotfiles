@@ -3,12 +3,23 @@
 # ===============================================================
 # sri-hash
 # Quickly get the sri hash from the passed .tar.gz archive link for the source code release from a github repo
+#
+# Usage: sri-hash [ARCHIVE_URL]
+# Author: Nathan Martindale
+# License: MIT
+#
+# This tool was initially generated from a nix configuration:
+# https://github.com/WildfireXIII/nix-config
+#
+# Config name: amethyst
+# Commit hash: e354286 (v110)
+# Config date: 2023-01-07
+# Exported with export-dots v0.3.0
 # ===============================================================
 
 set -o errexit
 set -o nounset
 set -o pipefail
-
 
 function parse_params() {
   positional_args=()

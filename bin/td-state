@@ -3,12 +3,24 @@
 # ===============================================================
 # td-state (0.1.0)
 # Takes a given todo-style text line and changes or cycles the todo state
+#
+# Usage: td-state ITEM [todo|strt|wait|done|canc|bug|fixd]
+# Leave state out in order to cycle.
+# Author: Nathan Martindale
+# License: MIT
+#
+# This tool was initially generated from a nix configuration:
+# https://github.com/WildfireXIII/nix-config
+#
+# Config name: amethyst
+# Commit hash: e354286 (v110)
+# Config date: 2023-01-07
+# Exported with export-dots v0.3.0
 # ===============================================================
 
 set -o errexit
 set -o nounset
 set -o pipefail
-
 
 function parse_params() {
   positional_args=()

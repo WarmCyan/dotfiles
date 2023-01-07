@@ -8,9 +8,9 @@ The nix configuration that these are generated from can be found at:
 ## Current dotfiles generation information
 
 Config name: amethyst  
-Commit hash: fb61bd3 (v100)  
-Config date: 2022-12-28  
-Exported with export-dots v0.2.1  
+Commit hash: e354286 (v110)  
+Config date: 2023-01-07  
+Exported with export-dots v0.3.0  
 
 ## Usage
 

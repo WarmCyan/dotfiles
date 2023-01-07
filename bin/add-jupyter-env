@@ -1,8 +1,15 @@
 #!/bin/bash
+# This tool was initially generated from a nix configuration:
+# https://github.com/WildfireXIII/nix-config
+#
+# Config name: amethyst
+# Commit hash: e354286 (v110)
+# Config date: 2023-01-07
+# Exported with export-dots v0.3.0
+
 set -o errexit
 set -o nounset
 set -o pipefail
-
 
 micromamba install \
   jupyter \
@@ -16,6 +23,5 @@ micromamba install \
   jupyterlab_code_formatter \
   black \
   isort
-  
-pip install jupyterlab-vimrc
 
+pip install jupyterlab-vimrc

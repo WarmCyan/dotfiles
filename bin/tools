@@ -1,14 +1,25 @@
 #!/bin/bash
 
 # ===============================================================
-# tools
-# Essentially a lister of my tools so I remember!
+# tools (0.2.0)
+# Essentially a lister of my tools so I remember! And can quickly check which ones are installed
+#
+# Usage: tools [-c|--check TOOL] [-q|--quiet]
+# Author: Nathan Martindale
+# License: MIT
+#
+# This tool was initially generated from a nix configuration:
+# https://github.com/WildfireXIII/nix-config
+#
+# Config name: amethyst
+# Commit hash: e354286 (v110)
+# Config date: 2023-01-07
+# Exported with export-dots v0.3.0
 # ===============================================================
 
 set -o errexit
 set -o nounset
 set -o pipefail
-
 
 function parse_params() {
   positional_args=()
@@ -17,8 +28,18 @@ function parse_params() {
     param="$1"
     shift
     case $param in
+      -c | --check)
+        check=$1
+        shift
+        ;;
       -h | --help)
         help=true
+        ;;
+      -q | --quiet)
+        quiet=true
+        ;;
+      --version)
+        version=true
         ;;
 
       *)
@@ -29,10 +50,13 @@ function parse_params() {
 }
 
 function print_help() {
-  echo "Essentially a lister of my tools so I remember!"
-  echo -e "\nusage: tools"
+  echo "Essentially a lister of my tools so I remember! And can quickly check which ones are installed"
+  echo -e "\nusage: tools [-c|--check TOOL] [-q|--quiet]"
   echo ""
+  echo -e "  -c --check\t\tCheck if a specified tool exists in the path. Will exit non-zero if tool not found."
   echo -e "  -h --help\t\tDisplay this help message."
+  echo -e "  -q --quiet\t\tDon't print out any badges, but exit zero or non-zero if a tool found/not found."
+  echo -e "  --version\t\tPrint the script version."
 }
 
 parse_params "$@"
@@ -40,6 +64,11 @@ set -- "${positional_args[@]}"
 
 if [[ ${help-false} == true ]]; then
   print_help
+  exit 0
+fi
+
+if [[ ${version-false} == true ]]; then
+  echo "0.2.0"
   exit 0
 fi
 
@@ -145,9 +174,31 @@ function status_badge() {
   local message="${2}"
 
   if [[ ${status} == 0 ]]; then
+
+    # exit based on status if quiet and don't print
+    if [[ ${quiet-false} == true ]]; then
+      exit 0
+    fi
+
     echo "${bg_green}${fg_black}  OK  ${ta_none} ${message}"
+
+    # if this was one specific tool we were looking for, exit now
+    if [[ "${check-}" != "" ]]; then
+      exit 0
+    fi
   else
+
+    # exit based on status if quiet and don't print
+    if [[ ${quiet-false} == true ]]; then
+      exit 1
+    fi
+
     echo "${bg_red}${fg_black} MISS ${ta_none} ${message}"
+
+    # if this was one specific tool we were looking for, exit now
+    if [[ "${check-}" != "" ]]; then
+      exit 1
+    fi
   fi
 }
 
@@ -160,8 +211,11 @@ function check_tool() {
   status_badge "${exists}" "${tool}"
 }
 
+if [[ "${check-}" != "" ]]; then
+  check_tool "${check}"
+fi
+
 # my tools
-echo "Checking installation of custom tools in path..."
 check_tool "iris"
 check_tool "export-dots"
 echo "------"
