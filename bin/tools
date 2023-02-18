@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # ===============================================================
-# tools (0.2.0)
+# tools (0.2.1)
 # Essentially a lister of my tools so I remember! And can quickly check which ones are installed
 #
 # Usage: tools [-c|--check TOOL] [-q|--quiet]
@@ -12,9 +12,9 @@
 # https://github.com/WildfireXIII/nix-config
 #
 # Config name: amethyst
-# Commit hash: e354286 (v110)
-# Config date: 2023-01-07
-# Exported with export-dots v0.3.0
+# Commit hash: ff6daa9 (v116)
+# Config date: 2023-02-18
+# Exported with export-dots v0.4.0
 # ===============================================================
 
 set -o errexit
@@ -68,7 +68,7 @@ if [[ ${help-false} == true ]]; then
 fi
 
 if [[ ${version-false} == true ]]; then
-  echo "0.2.0"
+  echo "0.2.1"
   exit 0
 fi
 
@@ -215,13 +215,16 @@ if [[ "${check-}" != "" ]]; then
   check_tool "${check}"
 fi
 
-# my tools
+# my nix-specific tools
 check_tool "iris"
 check_tool "export-dots"
 echo "------"
+# my generalizable tools
+check_tool "tools"
 check_tool "add-jupyter-env"
 check_tool "sri-hash"
 check_tool "td-state"
 echo "------"
+# my desktop system specific tools
 check_tool "mic-monitor"
 check_tool "kbd-capslock"
