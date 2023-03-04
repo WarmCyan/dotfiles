@@ -1,10 +1,10 @@
 #!/bin/bash
 
 # ===============================================================
-# tools (0.2.2)
-# Essentially a lister of my tools so I remember! And can quickly check which ones are installed
+# engilog (0.1.0)
+# Tool for keeping engineering logs - off the cuff notes, decisions, and brain context while working.
 #
-# Usage: tools [-c|--check TOOL] [-q|--quiet]
+# Usage: engilog [-h|--help] [--version]
 # Author: Nathan Martindale
 # License: MIT
 #
@@ -28,15 +28,8 @@ function parse_params() {
     param="$1"
     shift
     case $param in
-      -c | --check)
-        check=$1
-        shift
-        ;;
       -h | --help)
         help=true
-        ;;
-      -q | --quiet)
-        quiet=true
         ;;
       --version)
         version=true
@@ -50,12 +43,10 @@ function parse_params() {
 }
 
 function print_help() {
-  echo "Essentially a lister of my tools so I remember! And can quickly check which ones are installed"
-  echo -e "\nusage: tools [-c|--check TOOL] [-q|--quiet]"
+  echo "Tool for keeping engineering logs - off the cuff notes, decisions, and brain context while working."
+  echo -e "\nusage: engilog [-h|--help] [--version]"
   echo ""
-  echo -e "  -c --check\t\tCheck if a specified tool exists in the path. Will exit non-zero if tool not found."
   echo -e "  -h --help\t\tDisplay this help message."
-  echo -e "  -q --quiet\t\tDon't print out any badges, but exit zero or non-zero if a tool found/not found."
   echo -e "  --version\t\tPrint the script version."
 }
 
@@ -68,7 +59,7 @@ if [[ ${help-false} == true ]]; then
 fi
 
 if [[ ${version-false} == true ]]; then
-  echo "0.2.2"
+  echo "0.1.0"
   exit 0
 fi
 
@@ -169,63 +160,147 @@ color_init
 
 # ---------------------- MAIN SCRIPT CODE -----------------------
 
-function status_badge() {
-  local status="${1}"
-  local message="${2}"
+# references array
+declare -a references_single=("a" "d" "e" "f" "g" "h" "i" "j" "k" "l" "m" "o" "r" "s" "t" "u" "v" "w" "x")
+declare -a references_double=("a" "b" "c" "d" "e" "f" "g" "h" "i" "j" "k" "l" "m" "n" "o" "p" "q" "r" "s" "t" "u" "v" "w" "x" "z")
 
-  if [[ ${status} == 0 ]]; then
+declare -A references=()
 
-    # exit based on status if quiet and don't print
-    if [[ ${quiet-false} == true ]]; then
-      exit 0
-    fi
+# used to store what the next series of letters to refer to a name
+# (vimium-like functionality from chrome/firefox plugin)
+nextref=""
 
-    echo "${bg_green}${fg_black}  OK  ${ta_none} ${message}"
+notes_dir="${XDG_DATA_HOME-$HOME/.local/share}/engilog"
 
-    # if this was one specific tool we were looking for, exit now
-    if [[ "${check-}" != "" ]]; then
-      exit 0
-    fi
-  else
-
-    # exit based on status if quiet and don't print
-    if [[ ${quiet-false} == true ]]; then
-      exit 1
-    fi
-
-    echo "${bg_red}${fg_black} MISS ${ta_none} ${message}"
-
-    # if this was one specific tool we were looking for, exit now
-    if [[ "${check-}" != "" ]]; then
-      exit 1
-    fi
-  fi
-}
-
-function check_tool() {
-  local tool="${1}"
-  exists=$(
-    command -v "${tool}" &>/dev/null
-    echo "$?"
-  )
-  status_badge "${exists}" "${tool}"
-}
-
-if [[ "${check-}" != "" ]]; then
-  check_tool "${check}"
+# make sure the directory exists, and if not, ask if want to clone a repo
+if [[ ! -e "${notes_dir}" ]]; then
+  echo "Engilog directory does not exist, creating..."
+  valid_response=false
+  while [[ ${valid_response} == false ]]; do
+    read -r -p "Do you want to clone an existing notes repository? (y/n)" response
+    case "${response}" in
+      [nN][oO] | [nN])
+        echo "Continuing with local-only notes repository"
+        mkdir -p "${notes_dir}"
+        valid_response=true
+        break
+        ;;
+      [yY][eE][sS] | [yY])
+        read -r -p "Please enter a git repo URL:" git_url
+        echo "Cloning notes repo into ${notes_dir}.."
+        git clone "${git_url}" "${notes_dir}"
+        valid_response=true
+        break
+        ;;
+      *)
+        echo "Invalid response, please enter [y]es or [n]o."
+        ;;
+    esac
+  done
 fi
 
-# my nix-specific tools
-check_tool "iris"
-check_tool "export-dots"
-echo "------"
-# my generalizable tools
-check_tool "tools"
-check_tool "add-jupyter-env"
-check_tool "sri-hash"
-check_tool "td-state"
-check_tool "engilog"
-echo "------"
-# my desktop system specific tools
-check_tool "mic-monitor"
-check_tool "kbd-capslock"
+# sync git if this is not a solely local-only repo
+if [[ -e "${notes_dir}/.git" ]]; then
+  echo "Syncing notes..."
+  pushd "${notes_dir}" &>/dev/null
+  git pull
+  popd
+fi
+
+function insert_time {
+  date_time_string=$(date +'%Y.%m.%d %H:%M:%S')
+  echo -e "\n----- ${date_time_string} -----\n" >>"$1"
+}
+
+function edit_file {
+  nvim "+ normal Go" "$1"
+}
+
+echo -e "Press 'n' to create a new notes session, or the key combo in yellow below to open a previous session"
+
+double_needed=false
+# shellcheck disable=SC2012
+count=$(ls "${notes_dir}" -1q | wc -l)
+
+if [[ "${count}" -gt ${#references_single[@]} ]]; then
+  double_needed=true
+fi
+
+# iterate through each filename, print it out and store reference characters with it
+pushd "${notes_dir}" &>/dev/null
+index=0
+subindex=0
+# shellcheck disable=SC2045
+for filename in $(ls -t1q); do
+  # shellcheck disable=SC2059
+  coloredname=$(sed -E "s/(.*)_(.*)_(.*)/$(printf "${fg_blue}${ta_bold}")\1$(printf "${ta_none}")\_\2\_\3/g" <<<"${filename}")
+
+  nextref=""
+
+  if [ "${double_needed}" = 'true' ]; then
+    nextref="${references_single[$index]}${references_double[$subindex]}"
+    if [[ "${subindex}" -ge "${#references_double[@]}" ]]; then
+      subindex=0
+      index=$index+1
+    else
+      subindex=$subindex+1
+    fi
+  else
+    nextref="${references_single[$index]}"
+    index=$index+1
+  fi
+
+  references+=(["$nextref"]="$filename")
+  echo -e "${fg_yellow}${ta_bold}${nextref} ${ta_none}${coloredname}"
+done
+popd &>/dev/null
+
+# get user input
+read -p "Input: " -rn1 char1
+if [[ "${char1}" == "n" ]]; then
+  echo -e "\nCreating a new notes session"
+
+  read -r -p "Session name: " name
+  echo "${name}"
+
+  datestring=$(date +"%Y.%m.%d")
+
+  filename="${name}_${HOSTNAME}_${datestring}"
+  echo "${filename}"
+  touch "${notes_dir}/${filename}"
+
+  insert_time "${notes_dir}/${filename}"
+
+  edit_file "${notes_dir}/${filename}"
+
+  # sync git stuff
+  if [[ -e "${notes_dir}/.git" ]]; then
+    echo "Syncing notes..."
+    pushd "${notes_dir}" &>/dev/null
+    git add -A
+    git commit -am "Added ${filename}"
+    git push
+    popd
+  fi
+else
+  reference_string="${char1}"
+
+  if [ "${double_needed}" = 'true' ]; then
+    read -rn1 char2
+    reference_string="${char1}${char2}"
+  fi
+
+  filename=${references[$reference_string]}
+  echo -e "\nOpening ${filename}..."
+  insert_time "${notes_dir}/${filename}"
+  edit_file "${notes_dir}/${filename}"
+
+  # sync git stuff
+  if [[ -e "${notes_dir}/.git" ]]; then
+    echo "Syncing notes..."
+    pushd "${notes_dir}" &>/dev/null
+    git commit -am "Edited ${filename}"
+    git push
+    popd
+  fi
+fi
