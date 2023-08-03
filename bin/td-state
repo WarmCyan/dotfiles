@@ -12,10 +12,10 @@
 # This tool was initially generated from a nix configuration:
 # https://github.com/WildfireXIII/nix-config
 #
-# Config name:
-# Commit hash:  (v)
-# Config date:
-# Exported with export-dots v0.4.0
+# Config name: amethyst
+# Commit hash: 0d704a8 (v176)
+# Config date: 2023-08-02
+# Exported with export-dots v0.4.1
 # ===============================================================
 
 set -o errexit

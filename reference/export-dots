@@ -1,7 +1,7 @@
 #!/nix/store/a7f7xfp9wyghf44yv6l6fv9dfw492hd3-bash-5.2-p15/bin/bash
 
 # ===============================================================
-# export-dots (0.4.0)
+# export-dots (0.4.1)
 # Turn nix-ified configs and scripts into non-nix-ified versions, so they can be copied onto systems that are too hard to get nix onto.
 #
 # Usage: export-dots [LOCATION]  # LOCATION by default is ~/dots
@@ -11,10 +11,10 @@
 # This tool was initially generated from a nix configuration:
 # https://github.com/WildfireXIII/nix-config
 #
-# Config name:
-# Commit hash:  (v)
-# Config date:
-# Exported with export-dots v0.4.0
+# Config name: amethyst
+# Commit hash: 0d704a8 (v176)
+# Config date: 2023-08-02
+# Exported with export-dots v0.4.1
 # ===============================================================
 
 set -o errexit
@@ -61,7 +61,7 @@ if [[ ${help-false} == true ]]; then
 fi
 
 if [[ ${version-false} == true ]]; then
-  echo "0.4.0"
+  echo "0.4.1"
   exit 0
 fi
 
@@ -80,8 +80,15 @@ hm_lastMod=""
 
 VERSION=$(export-dots --version) # :D :D :D :D this is fine
 
-# attempt to get current iris system/config info
+hm_profile_base=""
 if [[ -e "/nix/var/nix/profiles/per-user/${USER}/home-manager" ]]; then
+  hm_profile_base="/nix/var/nix/profiles/per-user/${USER}"
+elif [[ -e "${HOME}/.local/state/nix/profiles/home-manager" ]]; then
+  hm_profile_base="${HOME}/.local/state/nix/profiles"
+fi
+
+# attempt to get current iris system/config info
+if [[ "$hm_profile_base" != "" ]]; then
   if [[ -e "${XDG_DATA_HOME-$HOME/.local/share}/iris/configname" ]]; then
     hm_config=$(cat "${XDG_DATA_HOME-$HOME/.local/share}/iris/configname")
   fi
@@ -306,6 +313,7 @@ export_simple_fixed_tool "td-state"
 export_simple_fixed_tool "add-jupyter-env"
 export_simple_fixed_tool "sri-hash"
 export_simple_fixed_tool "engilog"
+export_simple_fixed_tool "pluto"
 export_reference_tool "export-dots"
 export_reference_tool "iris"
 write_installer

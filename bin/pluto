@@ -1,10 +1,10 @@
 #!/bin/bash
 
 # ===============================================================
-# sri-hash
-# Quickly get the sri hash from the passed .tar.gz archive link for the source code release from a github repo
+# pluto
+# Launcher for pluto julia notebook.
 #
-# Usage: sri-hash [ARCHIVE_URL]
+# Usage: pluto
 # Author: Nathan Martindale
 # License: MIT
 #
@@ -40,8 +40,8 @@ function parse_params() {
 }
 
 function print_help() {
-  echo "Quickly get the sri hash from the passed .tar.gz archive link for the source code release from a github repo"
-  echo -e "\nusage: sri-hash [ARCHIVE_URL]"
+  echo "Launcher for pluto julia notebook."
+  echo -e "\nusage: pluto"
   echo ""
   echo -e "  -h --help\t\tDisplay this help message."
 }
@@ -56,10 +56,4 @@ fi
 
 # ---------------------- MAIN SCRIPT CODE -----------------------
 
-if [[ $# -lt 1 ]]; then
-  echo "Please provide the url to an archive/.tar.gz file of the source."
-  exit 1
-fi
-
-sha256=$(nix-prefetch-url --unpack "$1")
-nix hash to-sri "sha256:$sha256"
+julia -e "import Pkg; Pkg.add(\"Pluto\"); import Pluto; Pluto.run(auto_reload_from_file=true)"
