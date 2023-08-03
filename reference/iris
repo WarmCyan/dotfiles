@@ -1,7 +1,7 @@
-#!/nix/store/5ynbf6wszmggr0abwifdagrixgnya5vy-bash-5.2-p15/bin/bash
+#!/nix/store/a7f7xfp9wyghf44yv6l6fv9dfw492hd3-bash-5.2-p15/bin/bash
 
 # ===============================================================
-# iris (1.0.0)
+# iris (1.0.3)
 # Management tool for my systems/nix-config flake.
 #
 # Usage: iris {COMMAND:[(b|build)(e|edit)(n|new)(ls)(lsgen)(r|revert)]} {SYSTEMS:s/h} {CONFIG1} {CONFIG2} --yes --update
@@ -22,7 +22,7 @@ set -o errexit
 set -o nounset
 set -o pipefail
 
-export PATH="/nix/store/b1wkn5pr1505kjdlxbcjf2nbhqjpi87q-figlet-2.2.5/bin:/nix/store/fkrm6n9l73bmkihxbmfg5mj9q4b1zk1p-nvd-0.2.0/bin:/nix/store/lhqcxksbqdqw0arqv14f4q2cxsclf0lv-lolcat-100.0.1/bin:/nix/store/gcjdc26g5ihy3n4rainpvi67fn2418bq-ripgrep-13.0.0/bin:/nix/store/hagvhrwy8jzj97kc7nyy9vr18xkg7xvk-jq-1.6-bin/bin:$PATH"
+export PATH="/nix/store/k18annyfh0jv09hc0ibxpbihfv9m5j6p-figlet-2.2.5/bin:/nix/store/vmr145p6jir2dy70i4yx3bdisjq11jbz-nvd-0.2.3/bin:/nix/store/rjl8056q46pqq8plr6g3pzbp0vvnn26f-lolcat-100.0.1/bin:/nix/store/l74qmkwqbpcickrh51nf60j9d5cf3h6c-ripgrep-13.0.0/bin:/nix/store/5z5v2d57017sfws1w0s03isqxn4v362w-jq-1.6-bin/bin:$PATH"
 
 function parse_params() {
   positional_args=()
@@ -87,7 +87,7 @@ if [[ ${help-false} == true ]]; then
 fi
 
 if [[ ${version-false} == true ]]; then
-  echo "1.0.0"
+  echo "1.0.3"
   exit 0
 fi
 
@@ -129,14 +129,14 @@ function collect_and_print_info() {
     if [[ -e "/etc/iris/configLastModified" ]]; then
       sys_lastMod=$(cat "/etc/iris/configLastModified")
       if [[ "${sys_lastMod}" != "dirty" ]]; then
-        sys_lastMod=$(date -d "@${sys_lastMod}" +"%Y-%m-%d")
+        sys_lastMod=$(/nix/store/whinz9rj5h6h8zxp9bkmfzv7fkzc0cq8-coreutils-9.3/bin/date -d "@${sys_lastMod}" +"%Y-%m-%d")
       fi
     fi
 
     system_generation_pointer=$(readlink "/nix/var/nix/profiles/system")
     system_generation_number=$(readlink "/nix/var/nix/profiles/system" | sed -e "s/[A-Za-z\-]*\([0-9]*\)/\1/g")
     #system_nix_store_pointer=$(readlink "/nix/var/nix/profiles/${system_generation_pointer}")
-    system_generation_date=$(stat -c %y "/nix/var/nix/profiles/${system_generation_pointer}")
+    system_generation_date=$(/nix/store/whinz9rj5h6h8zxp9bkmfzv7fkzc0cq8-coreutils-9.3/bin/stat -c %y "/nix/var/nix/profiles/${system_generation_pointer}")
     system_generation_date_time=${system_generation_date:0:10}
     #echo -e "System gen: \t${system_generation_number} (${system_generation_date_time}) ${sys_config} \tv${sys_revCount}-${sys_hash} (${sys_lastMod})"
     printf "%-13s%-3s %-13s %-10s v%-12s (%s)\n" \
@@ -149,7 +149,14 @@ function collect_and_print_info() {
     #echo -e "\t-> ${system_nix_store_pointer}"
   fi
 
+  hm_profile_base=""
   if [[ -e "/nix/var/nix/profiles/per-user/${USER}/home-manager" ]]; then
+    hm_profile_base="/nix/var/nix/profiles/per-user/${USER}"
+  elif [[ -e "${HOME}/.local/state/nix/profiles/home-manager" ]]; then
+    hm_profile_base="${HOME}/.local/state/nix/profiles"
+  fi
+
+  if [[ "$hm_profile_base" != "" ]]; then
     if [[ -e "${XDG_DATA_HOME-$HOME/.local/share}/iris/configname" ]]; then
       hm_config=$(cat "${XDG_DATA_HOME-$HOME/.local/share}/iris/configname")
     fi
@@ -168,14 +175,14 @@ function collect_and_print_info() {
     if [[ -e "${XDG_DATA_HOME-$HOME/.local/share}/iris/configLastModified" ]]; then
       hm_lastMod=$(cat "${XDG_DATA_HOME-$HOME/.local/share}/iris/configLastModified")
       if [[ "${hm_lastMod}" != "dirty" ]]; then
-        hm_lastMod=$(date -d "@${hm_lastMod}" +"%Y-%m-%d")
+        hm_lastMod=$(/nix/store/whinz9rj5h6h8zxp9bkmfzv7fkzc0cq8-coreutils-9.3/bin/date -d "@${hm_lastMod}" +"%Y-%m-%d")
       fi
     fi
 
-    hm_generation_pointer=$(readlink "/nix/var/nix/profiles/per-user/${USER}/home-manager")
-    hm_generation_number=$(readlink "/nix/var/nix/profiles/per-user/${USER}/home-manager" | sed -e "s/[A-Za-z\-]*\([0-9]*\)/\1/g")
+    hm_generation_pointer=$(readlink "${hm_profile_base}/home-manager")
+    hm_generation_number=$(readlink "${hm_profile_base}/home-manager" | sed -e "s/[A-Za-z\-]*\([0-9]*\)/\1/g")
     #hm_nix_store_pointer=$(readlink "/nix/var/nix/profiles/${hm_generation_pointer}")
-    hm_generation_date=$(stat -c %y "/nix/var/nix/profiles/per-user/${USER}/${hm_generation_pointer}")
+    hm_generation_date=$(/nix/store/whinz9rj5h6h8zxp9bkmfzv7fkzc0cq8-coreutils-9.3/bin/stat -c %y "${hm_profile_base}/${hm_generation_pointer}")
     hm_generation_date_time=${hm_generation_date:0:10}
     #echo -e "Home gen: \t${hm_generation_number} (${hm_generation_date_time}) ${hm_config} \tv${hm_revCount}-${hm_hash} (${hm_lastMod})"
     printf "%-13s%-3s %-13s %-10s v%-12s (%s)\n" \
@@ -289,10 +296,17 @@ function build_home() {
     exit 1
   fi
 
+  hm_profile_base=""
+  if [[ -e "/nix/var/nix/profiles/per-user/${USER}/home-manager" ]]; then
+    hm_profile_base="/nix/var/nix/profiles/per-user/${USER}"
+  elif [[ -e "${HOME}/.local/state/nix/profiles/home-manager" ]]; then
+    hm_profile_base="${HOME}/.local/state/nix/profiles"
+  fi
+
   home-manager build --flake .\#"${hm_config}"
   rm -f result-home
   mv result result-home
-  nvd diff "/nix/var/nix/profiles/per-user/${USER}/home-manager" result-home
+  nvd diff "${hm_profile_base}/home-manager" result-home
 
   if [[ ${yes-false} == false ]]; then
     # prompt loop
@@ -322,7 +336,7 @@ function build_home() {
 
   # if we've hit this point, we're good to do the build!
   echo "Applying home result..."
-  nix-env --profile "/nix/var/nix/profiles/per-user/${USER}/home-manager" --set ./result-home # TODO: what does this do?
+  nix-env --profile "${hm_profile_base}/home-manager" --set ./result-home # TODO: what does this do?
   result-home/activate
   popd &>/dev/null
 }
@@ -342,12 +356,20 @@ function list_system_configs() {
 
 function list_home_gens() {
   ensure_config
+
+  hm_profile_base=""
+  if [[ -e "/nix/var/nix/profiles/per-user/${USER}/home-manager" ]]; then
+    hm_profile_base="/nix/var/nix/profiles/per-user/${USER}"
+  elif [[ -e "${HOME}/.local/state/nix/profiles/home-manager" ]]; then
+    hm_profile_base="${HOME}/.local/state/nix/profiles"
+  fi
+
   echo -e "\nPrevious clean home generations:"
   printf "%-5s   %-12s   %-12s\n" "GEN" "GEN DATE" "GIT VERSION"
   echo "------------------------------------"
   printf "Collecting...\r"
-  if [[ -e "/nix/var/nix/profiles/per-user/${USER}/home-manager" ]]; then
-    pushd "/nix/var/nix/profiles/per-user/${USER}/" &>/dev/null
+  if [[ -e "${hm_profile_base}/home-manager" ]]; then
+    pushd "${hm_profile_base}" &>/dev/null
 
     {
       for filepath in home-manager-*-link; do
@@ -359,7 +381,7 @@ function list_home_gens() {
         hm_conf_revCount=""
         hm_conf_lastMod=""
 
-        full_path="/nix/var/nix/profiles/per-user/${USER}/${filepath}"
+        full_path="${hm_profile_base}/${filepath}"
         if [[ -e "${full_path}/home-files/.local/share/iris/configShortRev" ]]; then
           hm_conf_hash=$(cat "${full_path}/home-files/.local/share/iris/configShortRev")
         fi
@@ -372,10 +394,10 @@ function list_home_gens() {
         if [[ -e "${full_path}/home-files/.local/share/iris/configLastModified" ]]; then
           hm_conf_lastMod=$(cat "${full_path}/home-files/.local/share/iris/configLastModified")
           if [[ "${hm_conf_lastMod}" != "dirty" ]]; then
-            hm_conf_lastMod=$(date -d "@${hm_conf_lastMod}" +"%Y-%m-%d")
+            hm_conf_lastMod=$(/nix/store/whinz9rj5h6h8zxp9bkmfzv7fkzc0cq8-coreutils-9.3/bin/date -d "@${hm_conf_lastMod}" +"%Y-%m-%d")
           fi
         fi
-        hm_conf_generation_date=$(stat -c %y "/nix/var/nix/profiles/per-user/${USER}/${filepath}")
+        hm_conf_generation_date=$(/nix/store/whinz9rj5h6h8zxp9bkmfzv7fkzc0cq8-coreutils-9.3/bin/stat -c %y "${hm_profile_base}/${filepath}")
         hm_conf_generation_date_time=${hm_conf_generation_date:0:10}
         if [[ "${hm_conf_revCount}" == "" ]]; then
           continue
@@ -421,10 +443,10 @@ function list_sys_gens() {
         if [[ -e "${full_path}/etc/iris/configLastModified" ]]; then
           system_lastMod=$(cat "${full_path}/etc/iris/configLastModified")
           if [[ "${system_lastMod}" != "dirty" ]]; then
-            system_lastMod=$(date -d "@${system_lastMod}" +"%Y-%m-%d")
+            system_lastMod=$(/nix/store/whinz9rj5h6h8zxp9bkmfzv7fkzc0cq8-coreutils-9.3/bin/date -d "@${system_lastMod}" +"%Y-%m-%d")
           fi
         fi
-        system_generation_date=$(stat -c %y "/nix/var/nix/profiles/${filepath}")
+        system_generation_date=$(/nix/store/whinz9rj5h6h8zxp9bkmfzv7fkzc0cq8-coreutils-9.3/bin/stat -c %y "/nix/var/nix/profiles/${filepath}")
         system_generation_date_time=${system_generation_date:0:10}
         if [[ "${system_revCount}" == "" ]]; then
           continue
@@ -443,9 +465,16 @@ function activate_previous_home_gen() {
   ensure_config
   echo -e "\nRe-activiating previous home generation ${1}..."
 
-  if [[ -e "/nix/var/nix/profiles/per-user/${USER}/home-manager-${1}-link" ]]; then
+  hm_profile_base=""
+  if [[ -e "/nix/var/nix/profiles/per-user/${USER}/home-manager" ]]; then
+    hm_profile_base="/nix/var/nix/profiles/per-user/${USER}"
+  elif [[ -e "${HOME}/.local/state/nix/profiles/home-manager" ]]; then
+    hm_profile_base="${HOME}/.local/state/nix/profiles"
+  fi
 
-    nvd diff "/nix/var/nix/profiles/per-user/${USER}/home-manager" "/nix/var/nix/profiles/per-user/${USER}/home-manager-${1}-link"
+  if [[ -e "${hm_profile_base}/home-manager-${1}-link" ]]; then
+
+    nvd diff "${hm_profile_base}/home-manager" "${hm_profile_base}/home-manager-${1}-link"
 
     if [[ ${yes-false} == false ]]; then
       # prompt loop
@@ -474,7 +503,7 @@ function activate_previous_home_gen() {
 
     echo "Applying home generation ${1}..."
     # shellcheck disable=SC1090
-    . "/nix/var/nix/profiles/per-user/${USER}/home-manager-${1}-link/activate"
+    . "${hm_profile_base}/home-manager-${1}-link/activate"
   else
     echo "Could not find generation, use the 'iris lsgen' command to list valid generation numbers."
     exit 1
@@ -586,12 +615,13 @@ function open_for_edit() {
   # NOTE: vim is not in requested runtimeInputs because we're assuming nvim
   # is on the machine - this is a potentially faulty assumption...but I want
   # to use whatever is already there.
+
   if [[ $# -gt 1 ]]; then
     echo -e "\nEditing $1 and $2..."
-    vim -O "$1" "$2"
+    ${EDITOR:=vim} -O "$1" "$2"
   else
     echo -e "\nEditing $1..."
-    vim "$1"
+    ${EDITOR:=vim} "$1"
   fi
   popd &>/dev/null
 }

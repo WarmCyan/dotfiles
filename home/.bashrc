@@ -48,30 +48,6 @@ alias tn='tmux new-session -s'
 alias v='nvim'
 
 
-# >>> mamba initialize >>>
-export MAMBA_EXE=$HOME/.local/bin/micromamba
-export MAMBA_ROOT_PREFIX=$HOME/micromamba
-__mamba_setup="$($MAMBA_EXE shell hook --shell bash --prefix $MAMBA_ROOT_PREFIX 2> /dev/null)"
-if [ $? -eq 0 ]; then 
-    eval "$__mamba_setup"
-else
-    if [ -f "$MAMBA_ROOT_PREFIX/etc/profile.d/micromamba.sh" ]; then
-        . "$MAMBA_ROOT_PREFIX/etc/profile.d/micromamba.sh"
-    else
-        export  PATH="$MAMBA_ROOT_PREFIX/bin:$PATH"
-    fi
-fi
-unset __mamba_setup
-# <<< mamba initialize <<<
-
-# NOTE: Needed because of the change in 1.2.0: https://github.com/mamba-org/mamba/pull/2137/files
-# for whatever reason though __mamba_exe doesn't seem to exist? I determined
-# that manually making a function for it that just calls $MAMBA_EXE (like
-# what the completion used to do) seems to work fine though:
-__mamba_exe () {
-  $MAMBA_EXE "$@"
-}
-
 # ==================================================
 # COMMON SHELL CAPABILITIES (interactive shell)
 # ==================================================
@@ -106,9 +82,11 @@ export PATH=.:$PATH
 # ==================================================
 
 # prepare colors
-readonly ta_none="$(tput sgr0 2> /dev/null || true)"
-readonly ta_bold="$(tput bold 2> /dev/null || true)"
-readonly fg_blue="$(tput setaf 4 2> /dev/null || true)"
+# NOTE: the \001 and \002 are from https://unix.stackexchange.com/a/447520
+# without, the bash line doesn't wrap correctly
+readonly ta_none="\001$(tput sgr0 2> /dev/null || true)\002"
+readonly ta_bold="\001$(tput bold 2> /dev/null || true)\002"
+readonly fg_blue="\001$(tput setaf 4 2> /dev/null || true)\002"
     
 # nice prompt
 PS1="[${fg_blue}\t${ta_none}] ${fg_blue}\u${ta_normal}@${fg_blue}${ta_bold}\h${ta_none}${fg_blue} \w${ta_none} $ " 
@@ -116,4 +94,32 @@ PS1="[${fg_blue}\t${ta_none}] ${fg_blue}\u${ta_normal}@${fg_blue}${ta_bold}\h${t
 
 # if we have a quick and dirty bashrc addition:
 [[ -f ${HOME}/.bashrc_local ]] && . "${HOME}/.bashrc_local"
+
+# >>> mamba initialize >>>
+export MAMBA_EXE=$HOME/.local/bin/micromamba
+export MAMBA_ROOT_PREFIX=$HOME/micromamba
+__mamba_setup="$($MAMBA_EXE shell hook --shell bash --prefix $MAMBA_ROOT_PREFIX 2> /dev/null)"
+if [ $? -eq 0 ]; then 
+    eval "$__mamba_setup"
+else
+    if [ -f "${HOME}/micromamba/etc/profile.d/micromamba.sh" ]; then
+        . "${HOME}/micromamba/etc/profile.d/micromamba.sh"
+    else
+        export  PATH="${HOME}/micromamba/bin:$PATH"
+    fi
+fi
+unset __mamba_setup
+# <<< mamba initialize <<<
+
+# NOTE: Needed because of the change in 1.2.0: https://github.com/mamba-org/mamba/pull/2137/files
+# for whatever reason though __mamba_exe doesn't seem to exist? I determined
+# that manually making a function for it that just calls $MAMBA_EXE (like
+# what the completion used to do) seems to work fine though:
+__mamba_exe () {
+  $MAMBA_EXE "$@"
+}
+
+if test -n "$KITTY_INSTALLATION_DIR"; then
+  source "$KITTY_INSTALLATION_DIR/shell-integration/bash/kitty.bash"
+fi
 
