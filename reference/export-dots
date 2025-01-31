@@ -1,4 +1,4 @@
-#!/nix/store/a7f7xfp9wyghf44yv6l6fv9dfw492hd3-bash-5.2-p15/bin/bash
+#!/nix/store/gwgqdl0242ymlikq9s9s62gkp5cvyal3-bash-5.2p37/bin/bash
 
 # ===============================================================
 # export-dots (0.4.1)
@@ -12,8 +12,8 @@
 # https://github.com/WildfireXIII/nix-config
 #
 # Config name: amethyst
-# Commit hash: 0d704a8 (v176)
-# Config date: 2023-08-02
+# Commit hash: f31a465 (v292)
+# Config date: 2025-01-30
 # Exported with export-dots v0.4.1
 # ===============================================================
 
@@ -21,7 +21,7 @@ set -o errexit
 set -o nounset
 set -o pipefail
 
-export PATH="/nix/store/22saljw2b8fnl3aw0mh7j0jjgmc2lkkg-shellcheck-0.9.0-bin/bin:/nix/store/682jxw3nnp08jprsi1aldlzrvrj6rpnj-shfmt-3.7.0/bin:$PATH"
+export PATH="/nix/store/7j3hlb6w7f6snx0b4blhlrl463bd4jax-shellcheck-0.10.0-bin/bin:/nix/store/kwcv57w6mslqmqqhzkrkci2c7ivrr7g3-shfmt-3.10.0/bin:$PATH"
 
 function parse_params() {
   positional_args=()

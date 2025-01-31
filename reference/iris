@@ -1,7 +1,7 @@
-#!/nix/store/a7f7xfp9wyghf44yv6l6fv9dfw492hd3-bash-5.2-p15/bin/bash
+#!/nix/store/gwgqdl0242ymlikq9s9s62gkp5cvyal3-bash-5.2p37/bin/bash
 
 # ===============================================================
-# iris (1.0.3)
+# iris (1.1.1)
 # Management tool for my systems/nix-config flake.
 #
 # Usage: iris {COMMAND:[(b|build)(e|edit)(n|new)(ls)(lsgen)(r|revert)]} {SYSTEMS:s/h} {CONFIG1} {CONFIG2} --yes --update
@@ -22,7 +22,7 @@ set -o errexit
 set -o nounset
 set -o pipefail
 
-export PATH="/nix/store/k18annyfh0jv09hc0ibxpbihfv9m5j6p-figlet-2.2.5/bin:/nix/store/vmr145p6jir2dy70i4yx3bdisjq11jbz-nvd-0.2.3/bin:/nix/store/rjl8056q46pqq8plr6g3pzbp0vvnn26f-lolcat-100.0.1/bin:/nix/store/l74qmkwqbpcickrh51nf60j9d5cf3h6c-ripgrep-13.0.0/bin:/nix/store/5z5v2d57017sfws1w0s03isqxn4v362w-jq-1.6-bin/bin:$PATH"
+export PATH="/nix/store/4542z79cdiybfhdmv7pyzqjp94nn5dpw-figlet-2.2.5/bin:/nix/store/fayhmcvljmmjy7phi1mhmwgy1z8x5510-nvd-0.2.4/bin:/nix/store/6xlkafywph5gslwxnv5yvs5nxilh6p1g-lolcat-100.0.1/bin:$PATH"
 
 function parse_params() {
   positional_args=()
@@ -39,9 +39,6 @@ function parse_params() {
         ;;
       -u | --update)
         update=true
-        ;;
-      --update-pinned)
-        updatePinned=true
         ;;
       --version)
         version=true
@@ -73,7 +70,6 @@ Examples:
   echo -e "  -h --help\t\tDisplay this help message."
   echo -e "  -S --sync\t\tSync the nix-config git repository. (This runs before a build step if specified)"
   echo -e "  -u --update\t\tUpdate the flake lock file. (This runs before a build step if specified)"
-  echo -e "  --update-pinned\t\tUpdate the pinned nixpkgs version to the currently locked nixpkgs-unstable. (This runs before a build step if specified)"
   echo -e "  --version\t\tPrint the script version."
   echo -e "  -y --yes\t\tAutomatically apply the (h)ome and/or (s)ystem configuration without prompting."
 }
@@ -87,7 +83,7 @@ if [[ ${help-false} == true ]]; then
 fi
 
 if [[ ${version-false} == true ]]; then
-  echo "1.0.3"
+  echo "1.1.1"
   exit 0
 fi
 
@@ -129,14 +125,14 @@ function collect_and_print_info() {
     if [[ -e "/etc/iris/configLastModified" ]]; then
       sys_lastMod=$(cat "/etc/iris/configLastModified")
       if [[ "${sys_lastMod}" != "dirty" ]]; then
-        sys_lastMod=$(/nix/store/whinz9rj5h6h8zxp9bkmfzv7fkzc0cq8-coreutils-9.3/bin/date -d "@${sys_lastMod}" +"%Y-%m-%d")
+        sys_lastMod=$(/nix/store/6wgd8c9vq93mqxzc7jhkl86mv6qbc360-coreutils-9.5/bin/date -d "@${sys_lastMod}" +"%Y-%m-%d")
       fi
     fi
 
     system_generation_pointer=$(readlink "/nix/var/nix/profiles/system")
     system_generation_number=$(readlink "/nix/var/nix/profiles/system" | sed -e "s/[A-Za-z\-]*\([0-9]*\)/\1/g")
     #system_nix_store_pointer=$(readlink "/nix/var/nix/profiles/${system_generation_pointer}")
-    system_generation_date=$(/nix/store/whinz9rj5h6h8zxp9bkmfzv7fkzc0cq8-coreutils-9.3/bin/stat -c %y "/nix/var/nix/profiles/${system_generation_pointer}")
+    system_generation_date=$(/nix/store/6wgd8c9vq93mqxzc7jhkl86mv6qbc360-coreutils-9.5/bin/stat -c %y "/nix/var/nix/profiles/${system_generation_pointer}")
     system_generation_date_time=${system_generation_date:0:10}
     #echo -e "System gen: \t${system_generation_number} (${system_generation_date_time}) ${sys_config} \tv${sys_revCount}-${sys_hash} (${sys_lastMod})"
     printf "%-13s%-3s %-13s %-10s v%-12s (%s)\n" \
@@ -175,14 +171,14 @@ function collect_and_print_info() {
     if [[ -e "${XDG_DATA_HOME-$HOME/.local/share}/iris/configLastModified" ]]; then
       hm_lastMod=$(cat "${XDG_DATA_HOME-$HOME/.local/share}/iris/configLastModified")
       if [[ "${hm_lastMod}" != "dirty" ]]; then
-        hm_lastMod=$(/nix/store/whinz9rj5h6h8zxp9bkmfzv7fkzc0cq8-coreutils-9.3/bin/date -d "@${hm_lastMod}" +"%Y-%m-%d")
+        hm_lastMod=$(/nix/store/6wgd8c9vq93mqxzc7jhkl86mv6qbc360-coreutils-9.5/bin/date -d "@${hm_lastMod}" +"%Y-%m-%d")
       fi
     fi
 
     hm_generation_pointer=$(readlink "${hm_profile_base}/home-manager")
     hm_generation_number=$(readlink "${hm_profile_base}/home-manager" | sed -e "s/[A-Za-z\-]*\([0-9]*\)/\1/g")
     #hm_nix_store_pointer=$(readlink "/nix/var/nix/profiles/${hm_generation_pointer}")
-    hm_generation_date=$(/nix/store/whinz9rj5h6h8zxp9bkmfzv7fkzc0cq8-coreutils-9.3/bin/stat -c %y "${hm_profile_base}/${hm_generation_pointer}")
+    hm_generation_date=$(/nix/store/6wgd8c9vq93mqxzc7jhkl86mv6qbc360-coreutils-9.5/bin/stat -c %y "${hm_profile_base}/${hm_generation_pointer}")
     hm_generation_date_time=${hm_generation_date:0:10}
     #echo -e "Home gen: \t${hm_generation_number} (${hm_generation_date_time}) ${hm_config} \tv${hm_revCount}-${hm_hash} (${hm_lastMod})"
     printf "%-13s%-3s %-13s %-10s v%-12s (%s)\n" \
@@ -303,7 +299,7 @@ function build_home() {
     hm_profile_base="${HOME}/.local/state/nix/profiles"
   fi
 
-  home-manager build --flake .\#"${hm_config}"
+  home-manager build --flake .\#"${hm_config}" --impure
   rm -f result-home
   mv result result-home
   nvd diff "${hm_profile_base}/home-manager" result-home
@@ -394,10 +390,10 @@ function list_home_gens() {
         if [[ -e "${full_path}/home-files/.local/share/iris/configLastModified" ]]; then
           hm_conf_lastMod=$(cat "${full_path}/home-files/.local/share/iris/configLastModified")
           if [[ "${hm_conf_lastMod}" != "dirty" ]]; then
-            hm_conf_lastMod=$(/nix/store/whinz9rj5h6h8zxp9bkmfzv7fkzc0cq8-coreutils-9.3/bin/date -d "@${hm_conf_lastMod}" +"%Y-%m-%d")
+            hm_conf_lastMod=$(/nix/store/6wgd8c9vq93mqxzc7jhkl86mv6qbc360-coreutils-9.5/bin/date -d "@${hm_conf_lastMod}" +"%Y-%m-%d")
           fi
         fi
-        hm_conf_generation_date=$(/nix/store/whinz9rj5h6h8zxp9bkmfzv7fkzc0cq8-coreutils-9.3/bin/stat -c %y "${hm_profile_base}/${filepath}")
+        hm_conf_generation_date=$(/nix/store/6wgd8c9vq93mqxzc7jhkl86mv6qbc360-coreutils-9.5/bin/stat -c %y "${hm_profile_base}/${filepath}")
         hm_conf_generation_date_time=${hm_conf_generation_date:0:10}
         if [[ "${hm_conf_revCount}" == "" ]]; then
           continue
@@ -443,10 +439,10 @@ function list_sys_gens() {
         if [[ -e "${full_path}/etc/iris/configLastModified" ]]; then
           system_lastMod=$(cat "${full_path}/etc/iris/configLastModified")
           if [[ "${system_lastMod}" != "dirty" ]]; then
-            system_lastMod=$(/nix/store/whinz9rj5h6h8zxp9bkmfzv7fkzc0cq8-coreutils-9.3/bin/date -d "@${system_lastMod}" +"%Y-%m-%d")
+            system_lastMod=$(/nix/store/6wgd8c9vq93mqxzc7jhkl86mv6qbc360-coreutils-9.5/bin/date -d "@${system_lastMod}" +"%Y-%m-%d")
           fi
         fi
-        system_generation_date=$(/nix/store/whinz9rj5h6h8zxp9bkmfzv7fkzc0cq8-coreutils-9.3/bin/stat -c %y "/nix/var/nix/profiles/${filepath}")
+        system_generation_date=$(/nix/store/6wgd8c9vq93mqxzc7jhkl86mv6qbc360-coreutils-9.5/bin/stat -c %y "/nix/var/nix/profiles/${filepath}")
         system_generation_date_time=${system_generation_date:0:10}
         if [[ "${system_revCount}" == "" ]]; then
           continue
@@ -553,62 +549,6 @@ function activate_previous_sys_gen() {
   fi
 }
 
-function update_pinned_nixpkgs() {
-  # finds out the current rev of nixpkgs-unstable in local flake lock,
-  # then modifies flake nixpkgs-pinned to that rev, after ensuring pinned
-  # isn't already in use anywhere
-  ensure_config
-
-  # make sure we're not using pinned somewhere
-  echo -e "\nChecking for existing pinned package usage..."
-  pushd "${config_location}" &>/dev/null
-  found=false
-
-  # check in the home configs
-  pushd home &>/dev/null
-  if rg "pinned\."; then
-    found=true
-  fi
-  popd &>/dev/null
-
-  # check in the nixos system configs
-  pushd hosts &>/dev/null
-  if rg "pinned\."; then
-    found=true
-  fi
-  popd &>/dev/null
-
-  if [[ ${found} == true ]]; then
-    echo "WARNING: existing uses of pinned packages found, updating pinned channel before changing these could lead to unintended breakages!"
-    # prompt loop
-    valid_response=false
-    while [[ ${valid_response} == false ]]; do
-      read -r -p "Update nixpkgs-pinned anyway? [y/n]" response
-      case "${response}" in
-        [nN][oO] | [nN])
-          echo "Not updating pinned nixpkgs."
-          exit 1
-          ;;
-        [yY][eE][sS] | [yY])
-          valid_response=true
-          break
-          ;;
-        *)
-          echo "Invalid response, please enter [y]es or [n]o."
-          ;;
-      esac
-    done
-  fi
-
-  # get current nixpkgs-unstable revision
-  unstableRevision=$(jq -r '.nodes."nixpkgs-unstable"'.locked.rev flake.lock)
-
-  echo "Updating flake pinned nixpkgs to revision ${unstableRevision}"
-  # change the flake.nix (danger!)
-  sed -i -E "s/nixpkgs\-pinned.url\ =\ .*\;\$/nixpkgs\-pinned.url\ =\ \"github:nixos\/nixpkgs?rev=${unstableRevision}\";/" flake.nix
-  popd &>/dev/null
-}
-
 function open_for_edit() {
   ensure_config
   pushd "${config_location}" &>/dev/null
@@ -633,13 +573,6 @@ collect_and_print_info
 
 if [[ ${sync-false} == true ]]; then
   sync_repo
-fi
-
-# NOTE: we have to run update-pinned before a regular update!
-# this allows us to both update pinned and the regular nixpkgs-unstable
-# without changing them both to the same latest nixpkgs-unstable
-if [[ ${updatePinned--false} == true ]]; then
-  update_pinned_nixpkgs
 fi
 
 if [[ ${update-false} == true ]]; then
