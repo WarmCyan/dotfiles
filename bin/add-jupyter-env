@@ -3,8 +3,8 @@
 # https://github.com/WildfireXIII/nix-config
 #
 # Config name: amethyst
-# Commit hash: 0d704a8 (v176)
-# Config date: 2023-08-02
+# Commit hash: a8c4f48 (v291)
+# Config date: 2025-01-30
 # Exported with export-dots v0.4.1
 
 set -o errexit
@@ -16,12 +16,8 @@ micromamba install \
   jupyterlab \
   nodejs \
   jupyterlab_vim \
-  ipydrawio \
-  dask_labextension \
   jupyterlab-lsp \
   python-lsp-server \
   jupyterlab_code_formatter \
   black \
   isort
-
-pip install jupyterlab-vimrc

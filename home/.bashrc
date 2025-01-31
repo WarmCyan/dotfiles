@@ -16,11 +16,11 @@ alias ..='cd ..'
 alias ...='cd ../..'
 alias ....='cd ../../..'
 alias .....='cd ../../../..'
-alias c='clear'
+alias c=clear
 alias chgrp='chgrp --preserve-root'
 alias chmod='chmod --preserve-root'
 alias chown='chown --preserve-root'
-alias conda='micromamba'
+alias conda=micromamba
 alias cp='cp -v'
 alias df='df -h'
 alias du='du -ch'
@@ -34,10 +34,12 @@ alias gu='git push'
 alias lab='cd ~/lab'
 alias ll='ls -lAh --color=auto'
 alias ls='ls --color=auto'
-alias mm='micromamba'
+alias mm=micromamba
 alias mv='mv -v'
 alias mx='chmod +x'
-alias q='exit'
+alias ns='nix-search --flake sys --no-pager'
+alias q=exit
+alias rgf='rg --files | rg'
 alias rm='rm -Iv --preserve-root'
 alias scratch='cd ~/lab/_env/scratchpad'
 alias ta='tmux attach -t'
@@ -45,7 +47,7 @@ alias tc='tmux new-session -t'
 alias tk='tmux kill-session -t'
 alias tl='tmux ls'
 alias tn='tmux new-session -s'
-alias v='nvim'
+alias v=nvim
 
 
 # ==================================================
@@ -87,9 +89,43 @@ export PATH=.:$PATH
 readonly ta_none="\001$(tput sgr0 2> /dev/null || true)\002"
 readonly ta_bold="\001$(tput bold 2> /dev/null || true)\002"
 readonly fg_blue="\001$(tput setaf 4 2> /dev/null || true)\002"
-    
+readonly fg_cyan="\001$(tput setaf 6 2> /dev/null || true)\002"
+readonly fg_green="\001$(tput setaf 2 2> /dev/null || true)\002"
+readonly fg_magenta="\001$(tput setaf 5 2> /dev/null || true)\002"
+readonly fg_red="\001$(tput setaf 1 2> /dev/null || true)\002"
+readonly fg_orange="\001$(tput setaf 3 2> /dev/null || true)\002"
+
+function prompt {
+  export prompt_color="${fg_blue}"
+
+  if [[ $# -gt 0 ]]; then
+    case "$1" in
+      "blue")
+        export prompt_color="${fg_blue}"
+      ;;
+      "cyan")
+        export prompt_color="${fg_cyan}"
+      ;;
+      "green")
+        export prompt_color="${fg_green}"
+      ;;
+      "magenta")
+        export prompt_color="${fg_magenta}"
+      ;;
+      "red")
+        export prompt_color="${fg_red}"
+      ;;
+      "orange")
+        export prompt_color="${fg_orange}"
+      ;;
+    esac
+  fi
+  export PS1="[${prompt_color}\t${ta_none}] ${prompt_color}\u${ta_normal}@${prompt_color}${ta_bold}\h${ta_none}${prompt_color} \w${ta_none} $ "
+}
+
 # nice prompt
-PS1="[${fg_blue}\t${ta_none}] ${fg_blue}\u${ta_normal}@${fg_blue}${ta_bold}\h${ta_none}${fg_blue} \w${ta_none} $ " 
+#PS1="[${fg_blue}\t${ta_none}] ${fg_blue}\u${ta_normal}@${fg_blue}${ta_bold}\h${ta_none}${fg_blue} \w${ta_none} $ " 
+prompt "blue"
 
 
 # if we have a quick and dirty bashrc addition:
@@ -119,7 +155,5 @@ __mamba_exe () {
   $MAMBA_EXE "$@"
 }
 
-if test -n "$KITTY_INSTALLATION_DIR"; then
-  source "$KITTY_INSTALLATION_DIR/shell-integration/bash/kitty.bash"
-fi
+source "/nix/store/ngcc242bzmp9fiqcnqf9l9v3rlq0vzpk-wezterm-0-unstable-2025-01-03/etc/profile.d/wezterm.sh"
 

@@ -24,6 +24,9 @@ endif
 " colorscheme! 
 set background=dark
 let g:everforest_background='hard'
+let g:everforest_enable_italic=0
+let g:everforest_current_word='bold'
+let g:everforest_inlay_hints_background='dimmed'
 
 " ==============================================================================
 " SETTINGS
@@ -151,7 +154,7 @@ vnoremap ; :
 nnoremap Y y$
 
 " more sane usages of H and L
-nnoremap H ^
+nmap H ^
 nnoremap L $
 
 " convert word before cursor (or on cursor) to upper case (uses z mark)
@@ -188,16 +191,36 @@ nnoremap <F3> :bnext<CR>
 nnoremap <C-I> <C-A>
 
 " tab control
-nnoremap <tab>h :tabprev<cr>
-nnoremap <tab>l :tabnext<cr>
-nnoremap <tab><enter> :tabnew<cr>
-nnoremap <tab>x :tabclose<cr>
+" I'm moving these instead to buffer controls because of the
+" bufferline plugin
+" nnoremap <tab>h :tabprev<cr>
+" nnoremap <tab>l :tabnext<cr>
+" nnoremap <tab><enter> :tabnew<cr>
+" nnoremap <tab>x :tabclose<cr>
+ 
+nnoremap <tab>h :bprevious<cr>
+nnoremap <tab>l :bnext<cr>
+nnoremap <tab>x :bdelete<cr>
 
-" Split line (on next space)
+" split line (on next space)
 nnoremap S f<space>s<cr><esc>==
 
-" Todo-cycling with my custom td-state tool
+" todo-cycling with my custom td-state tool
 nmap <s-t> V:'<,'>!td-state "`cat`"<cr>W
+
+" make terminal also use jk for escape
+tnoremap jk <C-\><C-n>
+
+" terminal split creation shortcuts
+noremap <C-t>h <C-w>v:terminal<cr>a
+noremap <C-t>j <C-w>s<C-w>j:terminal<cr>a
+noremap <C-t>k <C-w>s:terminal<cr>a
+noremap <C-t>l <C-w>v<C-w>l:terminal<cr>a
+
+" the tree-sitter pluggin introduces a :EditQuery command which makes it so that
+" :E no longer means :Explore. To re-allow this, essentially redefining an :E
+" command, see https://stackoverflow.com/questions/14367440/map-e-to-explore-in-command-mode 
+command! -nargs=* -bar -bang -count=0 -complete=dir E Explore <args>
 
 
 " ==============================================================================
@@ -231,6 +254,20 @@ highlight link Todo TODO_todo
 highlight link pythonTodo TODO_todo 
 highlight link javaScriptCommentTodo TODO_todo
 
+" link in custom treesitter captures
+highlight link @comment.todo TODO_todo
+highlight link @TODO_todo TODO_todo
+highlight link @TODO_strt TODO_strt
+highlight link @TODO_wait TODO_wait
+highlight link @TODO_done TODO_done
+highlight link @TODO_canc TODO_canc
+highlight link @NOTES_bug NOTES_bug
+highlight link @NOTES_fixd NOTES_fixd
+highlight link @NOTES_idea NOTES_idea
+highlight link @NOTES_note NOTES_note
+highlight link @comment.note NOTES_note
+
+
 " highlight bug/fixes/ideas
 autocmd BufRead,BufNewFile * syntax match NOTES_bug "\vBUG\:" containedin=ALL
 autocmd BufRead,BufNewFile * syntax match NOTES_fixd "\vFIXD\:" containedin=ALL
@@ -247,6 +284,8 @@ autocmd BufRead,BufNewFile * syntax match URL "\vhttps?\:\/\/(www\.)?[-a-zA-Z0-9
 autocmd BufRead,BufNewFile * highlight URL ctermfg=magenta cterm=underline guifg=#af87ff gui=bold
 
 
+" stop bold facing comments 
+autocmd BufRead,BufNewFile * highlight Comment cterm=None gui=None
 
 
 
